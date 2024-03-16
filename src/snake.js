@@ -4,16 +4,15 @@ var alturaTela = 20;
 var tela;
 var c;
 var unidade = larguraTela * alturaTela / (tamBloco * tamBloco);
-
 var snakeX = tamBloco * 5;
 var snakeY = tamBloco * 5;
 var snakeBody = [];
-
 var macaX;
 var macaY;
-
 var eixoX = 0;
 var eixoY = 0;
+var gameOver = false;
+var score = 0;
 
 window.onload = function() {
     tela = document.getElementById("tela");
@@ -21,11 +20,15 @@ window.onload = function() {
     tela.width = larguraTela * tamBloco;
     c = tela.getContext("2d");
     criarMaca();
-    document.addEventListener("keyup", changeDirection);
-    setInterval(desenhaTela, 1000/10); //100 milisegundos
+    document.addEventListener("keyup", andar);
+    setInterval(desenhaTela, 1000/10); 
+    
 }
 
 function desenhaTela () {
+    if (gameOver) {  
+        return;
+    }
     c.fillStyle="black";
     c.fillRect(0, 0, tela.width, tela.height);
 
@@ -35,6 +38,7 @@ function desenhaTela () {
     if (snakeX == macaX && snakeY == macaY) {
         snakeBody.push([macaX, macaY])
         criarMaca();
+        score++;
     }
 
     for (let i = snakeBody.length-1 ; i > 0 ; i--) {
@@ -53,6 +57,10 @@ function desenhaTela () {
     for (let i = 0 ; i < snakeBody.length ; i++) {
         c.fillRect(snakeBody[i][0], snakeBody[i][1], tamBloco, tamBloco);
     }
+
+    limites();
+
+    document.getElementById("score").textContent = "Score: " + score;
 }
 
 function criarMaca() {
@@ -60,7 +68,21 @@ function criarMaca() {
     macaY = Math.floor(Math.random() * alturaTela) * tamBloco;
 }
 
-function changeDirection(e) {
+function limites() {
+    if (snakeX < 0 || snakeX > larguraTela*tamBloco || snakeY < 0 || snakeY > alturaTela*tamBloco) {
+        gameOver = true;
+        alert("You lost");
+    }
+
+    for (let i = 0 ; i < snakeBody.length ; i++) {
+        if (snakeX == snakeBody[i][0] && snakeY == snakeBody[i][1]) {
+            gameOver = true;
+            alert("You lost");
+        }
+    }
+}
+
+function andar(e) {
     if (e.code == "ArrowUp" && eixoY != 1) {
         eixoX = 0;
         eixoY = -1;
